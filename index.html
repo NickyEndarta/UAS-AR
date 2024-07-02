@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://ar-js-org.github.io/AR.js/aframe/build/aframe-ar.js"></script>
+    <title>AR Rocket Launch</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+      #mainPage, #markerPage, #guidePage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      #arScene {
+        display: none;
+      }
+      #markerPage, #guidePage {
+        display: none;
+      }
+      #markerImage {
+        max-width: 80%;
+        max-height: 60%;
+      }
+      #guideText {
+        width: 80%;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mainPage">
+      <h1>AR Rocket Launch</h1>
+      <button class="button" onclick="startAR()">Start</button>
+      <button class="button" onclick="showMarker()">Marker</button>
+      <button class="button" onclick="showGuide()">Guide</button>
+    </div>
+
+    <div id="markerPage">
+      <h2>Scan Marker</h2>
+      <img id="markerImage" src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png" alt="AR Marker">
+      <button class="button" onclick="goBack()">Back</button>
+    </div>
+
+    <div id="guidePage">
+      <h2>Tutorial Penggunaan</h2>
+      <div id="guideText">
+        <p>1. Klik tombol 'Start' untuk memulai AR.</p>
+        <p>2. Arahkan kamera ke marker yang sudah disediakan.</p>
+        <p>3. Setelah roket muncul, klik tombol 'LAUNCH' untuk meluncurkan roket.</p>
+        <p>4. Gunakan tombol 'reset' untuk mengulang peluncuran.</p>
+      </div>
+      <button class="button" onclick="goBack()">Back</button>
+    </div>
+
+    <div id="arScene">
+      <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+        <!-- AR Marker -->
+        <a-marker preset="hiro">
+          <!-- Rocket Model -->
+          <a-entity
+            id="rocket"
+            gltf-model="rocket/scene.gltf"
+            position="0 0 0"
+            scale="0.5 0.5 0.5"
+            animation="property: position; to: 0 5 0; dur: 5000; easing: linear; loop: false; startEvents: launch; pauseEvents: reset"
+          ></a-entity>
+        </a-marker>
+
+        <!-- Camera -->
+        <a-entity camera></a-entity>
+      </a-scene>
+      <!-- Launch Button -->
+      <button id="launchButton" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-120px); background-color: red; color: white; padding: 10px 20px; font-size: 18px; border: none; cursor: pointer; border-radius: 5px;">
+        LAUNCH
+      </button>
+
+      <!-- Reset Button -->
+      <button id="resetButton" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(20px); background-color: grey; color: white; padding: 5px 10px; font-size: 14px; border: none; cursor: pointer; border-radius: 5px;">
+        reset
+      </button>
+
+      <!-- Back Button -->
+      <button onclick="goBack()" style="position: absolute; top: 20px; left: 20px; background-color: #4CAF50; color: white; padding: 10px 20px; font-size: 16px; border: none; cursor: pointer; border-radius: 5px;">
+        Back
+      </button>
+    </div>
+
+    <script>
+      function startAR() {
+        hideAll();
+        document.getElementById('arScene').style.display = 'block';
+      }
+
+      function showMarker() {
+        hideAll();
+        document.getElementById('markerPage').style.display = 'flex';
+      }
+
+      function showGuide() {
+        hideAll();
+        document.getElementById('guidePage').style.display = 'flex';
+      }
+
+      function goBack() {
+        hideAll();
+        document.getElementById('mainPage').style.display = 'flex';
+      }
+
+      function hideAll() {
+        document.getElementById('mainPage').style.display = 'none';
+        document.getElementById('arScene').style.display = 'none';
+        document.getElementById('markerPage').style.display = 'none';
+        document.getElementById('guidePage').style.display = 'none';
+      }
+
+      // Button click event to start the rocket launch animation
+      document.getElementById("launchButton").addEventListener("click", function () {
+        var rocket = document.getElementById("rocket");
+        rocket.emit("launch");
+        this.disabled = true; // Disable the launch button after clicking
+      });
+
+      // Button click event to reset the rocket position
+      document.getElementById("resetButton").addEventListener("click", function () {
+        var rocket = document.getElementById("rocket");
+        rocket.emit("reset"); // Emit a reset event to pause the animation
+        rocket.setAttribute("position", "0 0 0"); // Reset position
+        document.getElementById("launchButton").disabled = false; // Re-enable the launch button
+      });
+    </script>
+  </body>
+</html>
